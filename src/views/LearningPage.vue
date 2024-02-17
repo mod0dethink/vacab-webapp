@@ -6,7 +6,11 @@
     </div>
     <div v-else-if="selectedWord">
       <p>単語: {{ selectedWord.word }}</p>
-      <button @click="showAnswer = !showAnswer">正解を表示</button>
+      <div>
+        <button @click="updateDifficulty('簡単')">簡単</button>
+        <button @click="updateDifficulty('普通')">普通</button>
+        <button @click="updateDifficulty('難しい')">難しい</button>
+      </div>
       <div v-if="showAnswer">
         <p>和訳: {{ selectedWord.translation }}</p>
         <p>例文: {{ selectedWord.example }}</p>
@@ -47,6 +51,25 @@ export default {
         this.allWordsLearned = true; // 一周したらフラグをtrueにする
       }
       this.showAnswer = false; // 正解を非表示にリセット
+    },
+    updateDifficulty(difficulty) {
+      // 難易度を更新する
+      const wordId = this.selectedWord.id;
+      fetch(`http://localhost:5000/api/words/${wordId}/difficulty`, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ difficulty }), // リクエストボディを更新
+      })
+        .then(response => response.json())
+        .then(data => {
+          this.showAnswer = true;
+          console.log("更新に成功しました", data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }
 }

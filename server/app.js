@@ -91,3 +91,23 @@ app.put("/api/words/:id", (req, res) => {
     res.status(200).json({ message: "単語が更新されました。" });
   });
 });
+
+// 単語の難易度を更新するためのPUTエンドポイント
+app.put("/api/words/:id/difficulty", (req, res) => {
+  const { id } = req.params;
+  const { difficulty } = req.body;
+  const query = "UPDATE words SET difficulty = ? WHERE id = ?";
+
+  connection.query(query, [difficulty, id], (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: "難易度の更新に失敗しました。" });
+      return;
+    }
+    if (results.affectedRows === 0) {
+      res.status(404).json({ message: "単語が見つかりません。" });
+      return;
+    }
+    res.status(200).json({ message: "単語の難易度が更新されました。" });
+  });
+});

@@ -5,6 +5,13 @@
     <div class="search-container">
       <input v-model="searchWords" placeholder="単語">
       <input v-model="searchTranslations" placeholder="和訳">
+      <select v-model="searchDifficulty">
+        <option value="全て">全て</option>
+        <option value="簡単">簡単</option>
+        <option value="普通">普通</option>
+        <option value="難しい">難しい</option>
+        <option value="未学習">未学習</option>
+      </select>
     </div>
 
     <div class="button">
@@ -47,7 +54,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="word in dbWords" :key="word.id">
+          <tr v-for="word in filteredWords" :key="word.id">
             <td>
               <input type="checkbox" :checked="isSelected(word)" @change="handleWordSelection($event, word)">
             </td>
@@ -80,8 +87,23 @@ export default {
       searchTranslations: "",
       dbWords: [], //データベースから取得した単語を格納するための配列
       selectedWords: [], // 選択された単語のIDを格納する配列
+      searchDifficulty: "全て", // v-mindの方がselected属性より優先される
       selectAll: false, //マスターチェックボックスの状態
     };
+  },
+  computed: {
+    filteredWords() {
+      return this.dbWords.filter(word => {
+        // 単語でのフィルタリング
+        const matchesWord = word.word.toLowerCase().includes(this.searchWords.toLowerCase());
+        // 和訳でのフィルタリング
+        const matchesTranslation = word.translation.toLowerCase().includes(this.searchTranslations.toLowerCase());
+        // 難易度でのフィルタリング（「全て」が選択されている場合はフィルタリングしない）
+        const matchesDifficulty = this.searchDifficulty === "全て" || word.difficulty === this.searchDifficulty;
+
+        return matchesWord && matchesTranslation && matchesDifficulty;
+      });
+    }
   },
   methods: {
     handleWordSelection(event, word) {
@@ -256,7 +278,8 @@ export default {
   /* コンテナの境界線を設定 */
 }
 
-.search-container input {
+.search-container input,
+select {
   display: block;
   /* ブロックレベル要素として表示 */
   width: 30%;

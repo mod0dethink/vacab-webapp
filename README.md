@@ -1,4 +1,5 @@
 # VocabAppInVue
+VueとCSSの練習
 単語の管理をlocalStorageからMySQL,単語チェックの管理はVuexに変えた
 ## Project setup
 ```
